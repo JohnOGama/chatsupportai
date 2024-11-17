@@ -9,7 +9,7 @@ import { Messages } from 'src/schema/conversation/message.schema';
 export class MessageService {
   constructor(
     @InjectModel(Messages.name)
-    private readonly messageModel: Model<Messages>,
+    private messageModel: Model<Messages>,
     private readonly openai: OpenAI,
   ) {}
 
@@ -77,10 +77,11 @@ export class MessageService {
 
   async saveMessageToDB(saveMessageDto: SaveMessageDto): Promise<Messages> {
     try {
-      const message = await this.messageModel.create(saveMessageDto);
+      const message = new this.messageModel(saveMessageDto);
 
       console.log('saveMessageDto', saveMessageDto);
-      return message;
+      console.log('return ', message);
+      return message.save();
     } catch (error) {
       console.error('Error saving message:', error);
       throw new Error('Failed to save message to the database.');

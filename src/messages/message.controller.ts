@@ -16,12 +16,9 @@ import { Messages } from 'src/schema/conversation/message.schema';
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
-  @Post(':userID')
-  async sendMessage(
-    @Body() message: MessageDto,
-    @Param() userID: string,
-  ): Promise<Messages> {
-    const { content } = message;
+  @Post()
+  async sendMessage(@Body() data: MessageDto): Promise<Messages> {
+    const { content, userID } = data;
 
     return this.messageService.createMessage(content, userID);
   }
