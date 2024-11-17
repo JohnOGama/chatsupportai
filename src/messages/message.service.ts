@@ -62,12 +62,11 @@ export class MessageService {
           threadID,
           messages: {
             // @ts-ignore
-            content: messagesResponse.data[0].content?.text?.value,
+            content: messagesResponse.data[0].content[0]?.text?.value,
             sender: 'agent',
           },
         });
 
-        console.log('ai response ', aiResponse);
         return aiResponse;
       }
     } catch (error) {
@@ -78,12 +77,10 @@ export class MessageService {
 
   async saveMessageToDB(saveMessageDto: SaveMessageDto): Promise<Messages> {
     try {
-      const message = new this.messageModel(saveMessageDto);
-      const savedMessage = await message.save();
+      const message = await this.messageModel.create(saveMessageDto);
 
-      console.log('Saved message:', savedMessage);
-
-      return savedMessage;
+      console.log('saveMessageDto', saveMessageDto);
+      return message;
     } catch (error) {
       console.error('Error saving message:', error);
       throw new Error('Failed to save message to the database.');
@@ -105,6 +102,4 @@ export class MessageService {
   async findByThreadIDAndDelete(threadID: string) {
     return this.messageModel.findByIdAndDelete({ threadID });
   }
-
-  
 }

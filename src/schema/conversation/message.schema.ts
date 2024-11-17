@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { IsOptional } from 'class-validator';
 import mongoose, { Document } from 'mongoose';
 
 @Schema()
@@ -20,24 +21,25 @@ class Message {
   @Prop()
   content: string;
 
-  @Prop()
-  metadata: Metadata;
+  // @Prop()
+  // @IsOptional()
+  // metadata: Metadata;
 }
 
 export const MessageSchema = SchemaFactory.createForClass(Message);
 
 @Schema({ timestamps: true })
-export class Messages extends Document {
-  @Prop({ required: true })
+export class Messages {
+  @Prop()
   userID: string;
 
-  @Prop({ required: true })
+  @Prop()
   agentID: string;
 
-  @Prop({ required: true })
+  @Prop()
   threadID: string;
 
-  @Prop()
+  @Prop({ type: MessageSchema })
   messages: Message;
 }
 

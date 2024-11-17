@@ -28,8 +28,7 @@ export class MessageContentDto {
   content: string;
 
   // @IsObject()
-  // @ValidateNested()
-  // @Type(() => MetadataDto)
+  // @IsOptional()
   // metadata: MetadataDto;
 }
 
@@ -43,7 +42,6 @@ export class SaveMessageDto {
   @IsString()
   threadID: string;
 
-  @IsArray()
   @IsObject()
   messages: MessageContentDto;
 }
