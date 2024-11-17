@@ -21,8 +21,8 @@ export class MessageService {
   }
 
   async createMessage(message: string, userID: string) {
-    const agentID = 'asst_6dyw8BP3jizOPQ4t15P8Vn9K';
-    const threadID = 'thread_1VFfuwfqAdzxvfbLN3ZLz5Lb';
+    const agentID = process.env.AGENT_ID;
+    const threadID = process.env.THREAD_ID;
 
     try {
       if (userID) {
