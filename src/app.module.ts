@@ -7,6 +7,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { MessageService } from './messages/message.service';
 
 import OpenAI from 'openai';
+import { Messages } from './schema/conversation/message.schema';
 
 @Module({
   imports: [
@@ -25,6 +26,5 @@ import OpenAI from 'openai';
       inject: [ConfigService],
     },
   ],
-  exports: [MongooseModule, MessageService],
 })
 export class AppModule {}

@@ -4,14 +4,14 @@ import { MessageService } from './message.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import {
   Messages,
-  MessageSchema,
+  MessagesSchema,
 } from 'src/schema/conversation/message.schema';
 import OpenAI from 'openai';
 import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Messages.name, schema: MessageSchema }]),
+    MongooseModule.forFeature([{ name: Messages.name, schema: MessagesSchema }]),
   ],
   controllers: [MessageController],
   providers: [

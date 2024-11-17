@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import OpenAI from 'openai';
@@ -15,6 +15,9 @@ export class MessageService {
 
   async createThread() {
     return this.openai.beta.threads.create();
+  }
+  async retriveThread(threadID: string) {
+    return this.openai.beta.threads.retrieve(threadID);
   }
 
   async createMessage(message: string, userID: string) {
@@ -34,12 +37,15 @@ export class MessageService {
           userID,
           agentID,
           threadID,
-          messages: { content: message, sender: 'user' },
+          messages: { sender: 'user', content: message },
         });
         if (response.id) {
-          return await this.runThread(threadID, agentID, userID);
+          await this.runThread(threadID, agentID, userID);
         }
-        return saveMessage;
+        return {
+          status_code: HttpStatus.OK,
+          data: saveMessage,
+        };
       }
     } catch (error) {
       throw error;
@@ -56,18 +62,23 @@ export class MessageService {
         const messagesResponse =
           await this.openai.beta.threads.messages.list(threadID);
 
-        const aiResponse = await this.saveMessageToDB({
+        const payload = {
           userID,
           agentID,
           threadID,
           messages: {
+            sender: 'agent',
             // @ts-ignore
             content: messagesResponse.data[0].content[0]?.text?.value,
-            sender: 'agent',
           },
-        });
+        };
 
-        return aiResponse;
+        const aiResponse = await this.messageModel.create(payload);
+
+        return {
+          status_code: HttpStatus.OK,
+          data: aiResponse,
+        };
       }
     } catch (error) {
       console.log('error in run thread');
@@ -78,9 +89,6 @@ export class MessageService {
   async saveMessageToDB(saveMessageDto: SaveMessageDto): Promise<Messages> {
     try {
       const message = new this.messageModel(saveMessageDto);
-
-      console.log('saveMessageDto', saveMessageDto);
-      console.log('return ', message);
       return message.save();
     } catch (error) {
       console.error('Error saving message:', error);
@@ -88,8 +96,12 @@ export class MessageService {
     }
   }
 
-  async findByThreadID(threadId: string) {
-    return this.messageModel.findOne({ threadId }).exec();
+  async findByThreadID(threadID: string): Promise<Messages> {
+    try {
+      return this.messageModel.findOne({ threadID }).exec();
+    } catch (error) {
+      throw new Error('Error getting thread');
+    }
   }
 
   async findByThreadIDAndUpdate(threadId: string, data: any) {
@@ -101,6 +113,22 @@ export class MessageService {
   }
 
   async findByThreadIDAndDelete(threadID: string) {
-    return this.messageModel.findByIdAndDelete({ threadID });
+    try {
+      return this.messageModel.deleteMany({ threadID }).exec();
+    } catch (error) {
+      throw new Error('Error deleting thread');
+    }
+  }
+
+  async find(): Promise<GenericResponse<Messages[]>> {
+    try {
+      const data = await this.messageModel.find().exec();
+      return {
+        status_code: HttpStatus.OK,
+        data,
+      };
+    } catch (error) {
+      throw new Error('Error getting all messages/threads');
+    }
   }
 }

@@ -17,19 +17,28 @@ export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
   @Post()
-  async sendMessage(@Body() data: MessageDto): Promise<Messages> {
+  async sendMessage(
+    @Body() data: MessageDto,
+  ): Promise<GenericResponse<Messages>> {
     const { content, userID } = data;
-
-    return this.messageService.createMessage(content, userID);
+    return await this.messageService.createMessage(content, userID);
   }
 
   @Get(':threadID')
-  async getOneThread(@Param() threadID: string) {
+  async getOneThread(@Param('threadID') threadID: string) {
     return await this.messageService.findByThreadID(threadID);
   }
 
+  @Get()
+  async getThreads(): Promise<GenericResponse<Messages[]>> {
+    return await this.messageService.find();
+  }
+
   @Put(':threadID')
-  async updateThread(@Param() threadID: string, newMessage: MessageContentDto) {
+  async updateThread(
+    @Param('threadID') threadID: string,
+    newMessage: MessageContentDto,
+  ) {
     try {
       const updateThread = await this.messageService.findByThreadIDAndUpdate(
         threadID,
@@ -43,7 +52,7 @@ export class MessageController {
   }
 
   @Delete(':threadID')
-  async deleteThread(@Param() threadID: string) {
+  async deleteThread(@Param('threadID') threadID: string) {
     return this.messageService.findByThreadIDAndDelete(threadID);
   }
 }

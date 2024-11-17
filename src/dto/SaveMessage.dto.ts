@@ -27,9 +27,6 @@ export class MessageContentDto {
   @IsString()
   content: string;
 
-  // @IsObject()
-  // @IsOptional()
-  // metadata: MetadataDto;
 }
 
 export class SaveMessageDto {
