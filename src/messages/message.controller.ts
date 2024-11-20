@@ -3,52 +3,47 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
-  Put,
 } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { MessageDto } from 'src/dto/message.dto';
-import { MessageContentDto } from 'src/dto/SaveMessage.dto';
 import { Messages } from 'src/schema/conversation/message.schema';
 
 @Controller('messages')
 export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
-  @Post()
+  // create new thread for thread id
+  @Post(':threadID')
   async sendMessage(
     @Body() data: MessageDto,
+    @Param('threadID') threadID: string,
   ): Promise<GenericResponse<Messages>> {
     const { content, userID } = data;
-    return await this.messageService.createMessage(content, userID);
+    return await this.messageService.createMessage(content, userID, threadID);
   }
+
+
 
   @Get(':threadID')
   async getOneThread(@Param('threadID') threadID: string) {
-    return await this.messageService.findByThreadID(threadID);
+    try {
+      const thread = await this.messageService.findByThreadID(threadID);
+      if (!thread) {
+        throw new NotFoundException(`Thread with ID ${threadID} not found.`);
+      }
+      return thread;
+    } catch (error) {
+      console.error('Error in getOneThread:', error.message);
+      throw error;
+    }
   }
 
   @Get()
   async getThreads(): Promise<GenericResponse<Messages[]>> {
     return await this.messageService.find();
-  }
-
-  @Put(':threadID')
-  async updateThread(
-    @Param('threadID') threadID: string,
-    newMessage: MessageContentDto,
-  ) {
-    try {
-      const updateThread = await this.messageService.findByThreadIDAndUpdate(
-        threadID,
-        newMessage,
-      );
-      return updateThread;
-    } catch (error) {
-      console.log('error in update thread');
-      throw error;
-    }
   }
 
   @Delete(':threadID')

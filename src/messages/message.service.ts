@@ -20,9 +20,8 @@ export class MessageService {
     return this.openai.beta.threads.retrieve(threadID);
   }
 
-  async createMessage(message: string, userID: string) {
+  async createMessage(message: string, userID: string, threadID: string) {
     const agentID = process.env.AGENT_ID;
-    const threadID = process.env.THREAD_ID;
 
     try {
       if (userID) {
@@ -40,12 +39,8 @@ export class MessageService {
           messages: { sender: 'user', content: message },
         });
         if (response.id) {
-          await this.runThread(threadID, agentID, userID);
+          return await this.runThread(threadID, agentID, userID);
         }
-        return {
-          status_code: HttpStatus.OK,
-          data: saveMessage,
-        };
       }
     } catch (error) {
       throw error;
@@ -96,20 +91,12 @@ export class MessageService {
     }
   }
 
-  async findByThreadID(threadID: string): Promise<Messages> {
+  async findByThreadID(threadID: string): Promise<Messages[]> {
     try {
-      return this.messageModel.findOne({ threadID }).exec();
+      return await this.messageModel.find({ threadID }).exec();
     } catch (error) {
       throw new Error('Error getting thread');
     }
-  }
-
-  async findByThreadIDAndUpdate(threadId: string, data: any) {
-    const threadData = await this.findByThreadID(threadId);
-    return this.messageModel.findByIdAndUpdate(
-      { threadId },
-      { threadData, messages: threadData.messages, ...data },
-    );
   }
 
   async findByThreadIDAndDelete(threadID: string) {

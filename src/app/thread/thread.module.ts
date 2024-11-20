@@ -1,24 +1,18 @@
 import { Module } from '@nestjs/common';
-import { MessageController } from './message.controller';
-import { MessageService } from './message.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import {
-  Messages,
-  MessagesSchema,
-} from 'src/schema/conversation/message.schema';
 import OpenAI from 'openai';
 import { ConfigService } from '@nestjs/config';
+import { Thread, ThreadSchema } from 'src/schema/thread/thread.schema';
+import { ThreadController } from './thread.controller';
+import { ThreadService } from './thread.service';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: Messages.name, schema: MessagesSchema },
-    ]),
+    MongooseModule.forFeature([{ name: Thread.name, schema: ThreadSchema }]),
   ],
-  controllers: [MessageController],
+  controllers: [ThreadController],
   providers: [
-    MessageService,
-
+    ThreadService,
     {
       provide: OpenAI,
       useFactory: (configModule: ConfigService) =>
@@ -28,4 +22,4 @@ import { ConfigService } from '@nestjs/config';
   ],
   exports: [MongooseModule],
 })
-export class MessageModule {}
+export class ThreadModule {}

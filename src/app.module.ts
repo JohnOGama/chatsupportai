@@ -7,18 +7,21 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { MessageService } from './messages/message.service';
 
 import OpenAI from 'openai';
-import { Messages } from './schema/conversation/message.schema';
+import { ThreadModule } from './app/thread/thread.module';
+import { ThreadService } from './app/thread/thread.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRoot(process.env.MONGO_KEY),
     MessageModule,
+    ThreadModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
     MessageService,
+    ThreadService,
     {
       provide: OpenAI,
       useFactory: (configModule: ConfigService) =>
