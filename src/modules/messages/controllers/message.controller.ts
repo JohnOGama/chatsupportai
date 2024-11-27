@@ -7,9 +7,9 @@ import {
   Param,
   Post,
 } from '@nestjs/common';
-import { MessageService } from './message.service';
-import { MessageDto } from 'src/dto/message.dto';
-import { Messages } from 'src/schema/conversation/message.schema';
+import { MessageService } from '../services/message.service';
+import { MessageDto } from '../dtos/message.dto';
+import { Messages } from '../schema/message.schema';
 
 @Controller('messages')
 export class MessageController {
@@ -24,8 +24,6 @@ export class MessageController {
     const { content, userID } = data;
     return await this.messageService.createMessage(content, userID, threadID);
   }
-
-
 
   @Get(':threadID')
   async getOneThread(@Param('threadID') threadID: string) {

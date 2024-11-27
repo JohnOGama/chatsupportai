@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import OpenAI from 'openai';
-import { Thread } from 'src/schema/thread/thread.schema';
+import { Thread } from 'src/modules/thread/schema/thread.schema';
 
 @Injectable()
 export class ThreadService {

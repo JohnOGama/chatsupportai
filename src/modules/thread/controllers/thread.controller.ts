@@ -1,5 +1,5 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { ThreadService } from './thread.service';
+import { ThreadService } from '../services/thread.service';
 
 @Controller('thread')
 export class ThreadController {
@@ -15,8 +15,8 @@ export class ThreadController {
     return await this.threadService.find();
   }
 
-  @Get(":threadID")
-  async fetchThread(@Param("threadID") threadID: string) {
-    return this.threadService.findThreadByThreadId(threadID)
+  @Get(':threadID')
+  async fetchThread(@Param('threadID') threadID: string) {
+    return this.threadService.findThreadByThreadId(threadID);
   }
 }

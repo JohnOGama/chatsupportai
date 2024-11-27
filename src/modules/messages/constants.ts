@@ -1,4 +1,4 @@
-export enum SenderEnum {
+export enum SenderType {
   AGENT = 'agent',
   USER = 'user',
 }

@@ -2,8 +2,9 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import OpenAI from 'openai';
-import { SaveMessageDto } from 'src/dto/SaveMessage.dto';
-import { Messages } from 'src/schema/conversation/message.schema';
+import { SaveMessageDto } from 'src/modules/messages/dtos/SaveMessage.dto';
+import { SenderType } from '../constants';
+import { Messages } from '../schema/message.schema';
 
 @Injectable()
 export class MessageService {
@@ -28,16 +29,18 @@ export class MessageService {
         const response = await this.openai.beta.threads.messages.create(
           threadID,
           {
-            role: 'user',
+            role: SenderType.USER,
             content: message,
           },
         );
-        const saveMessage = await this.saveMessageToDB({
+
+        await this.saveMessageToDB({
           userID,
           agentID,
           threadID,
           messages: { sender: 'user', content: message },
         });
+
         if (response.id) {
           return await this.runThread(threadID, agentID, userID);
         }
@@ -62,13 +65,13 @@ export class MessageService {
           agentID,
           threadID,
           messages: {
-            sender: 'agent',
+            sender: SenderType.AGENT,
             // @ts-ignore
             content: messagesResponse.data[0].content[0]?.text?.value,
           },
         };
 
-        const aiResponse = await this.messageModel.create(payload);
+        const aiResponse = await this.saveMessageToDB(payload);
 
         return {
           status_code: HttpStatus.OK,
@@ -86,7 +89,7 @@ export class MessageService {
       const message = new this.messageModel(saveMessageDto);
       return message.save();
     } catch (error) {
-      console.error('Error saving message:', error);
+      console.error(error);
       throw new Error('Failed to save message to the database.');
     }
   }
@@ -95,6 +98,7 @@ export class MessageService {
     try {
       return await this.messageModel.find({ threadID }).exec();
     } catch (error) {
+      console.error(error);
       throw new Error('Error getting thread');
     }
   }
@@ -103,6 +107,7 @@ export class MessageService {
     try {
       return this.messageModel.deleteMany({ threadID }).exec();
     } catch (error) {
+      console.error(error);
       throw new Error('Error deleting thread');
     }
   }
@@ -115,6 +120,7 @@ export class MessageService {
         data,
       };
     } catch (error) {
+      console.error(error);
       throw new Error('Error getting all messages/threads');
     }
   }

@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MessageModule } from './messages/message.module';
+import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { MessageService } from './messages/message.service';
-
-import OpenAI from 'openai';
-import { ThreadModule } from './app/thread/thread.module';
-import { ThreadService } from './app/thread/thread.service';
+import { ThreadModule } from './modules/thread/thread.module';
+import { ThreadService } from './modules/thread/services/thread.service';
+import { MessageService } from './modules/messages/services/message.service';
+import { MessageModule } from './modules/messages/message.module';
+import { OpenAIProvider } from './modules/messages/providers/openai.provider';
 
 @Module({
   imports: [
@@ -18,16 +17,6 @@ import { ThreadService } from './app/thread/thread.service';
     ThreadModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    MessageService,
-    ThreadService,
-    {
-      provide: OpenAI,
-      useFactory: (configModule: ConfigService) =>
-        new OpenAI({ apiKey: configModule.getOrThrow('OPENAI_API_KEY') }),
-      inject: [ConfigService],
-    },
-  ],
+  providers: [AppService, MessageService, ThreadService, OpenAIProvider],
 })
 export class AppModule {}
